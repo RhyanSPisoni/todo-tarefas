@@ -17,14 +17,30 @@ namespace Todo.Controllers
             _usuarioService = usuarioService;
         }
 
+        // [HttpGet]
+        // [Authorize]
+        // public async Task<List<UsuarioView>> BuscaDadosUsuarios()
+        // {
+        //     try
+        //     {
+        //         return await _usuarioService.BuscaDadosUsuarios();
+        //     }
+        //     catch
+        //     {
+        //         ExceptionService.MensagemErro();
+        //     }
+
+        //     return new List<UsuarioView>();
+        // }
+
         [HttpGet]
-        [Route("dados/{id}")]
+        [Route("dados")]
         [Authorize]
-        public async Task<UsuarioView> BuscaDadosUsuario(int id)
+        public async Task<UsuarioView> BuscaDadosUsuario()
         {
             try
             {
-                return await _usuarioService.BuscaDadosUsuario(id);
+                return await _usuarioService.BuscaDadosUsuario(User.Identity.Name);
             }
             catch
             {
@@ -37,7 +53,7 @@ namespace Todo.Controllers
         [HttpPost]
         [Route("novo/usuario")]
         [AllowAnonymous]
-        public async Task<bool> CriaUsuario([FromBody] DtoUsuario login)
+        public async Task<string> CriaUsuario([FromBody] DtoUsuario login)
         {
             try
             {
@@ -46,8 +62,9 @@ namespace Todo.Controllers
             catch
             {
                 ExceptionService.MensagemErro();
-                return false;
             }
+
+            return "";
 
         }
 
@@ -62,8 +79,9 @@ namespace Todo.Controllers
             catch
             {
                 ExceptionService.MensagemErro();
-                return false;
             }
+
+            return "";
 
         }
     }

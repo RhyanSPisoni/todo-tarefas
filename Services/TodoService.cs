@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Security.Claims;
 using Todo.Db;
 using Todo.DTOs;
 using Todo.Interfaces;
@@ -11,35 +12,40 @@ namespace Todo.Services
     public class TodoService : ITodoService
     {
         private readonly TodoContext _dbTodo;
-        public TodoService(TodoContext dbTodo)
+        private readonly UsuarioService _usuarioService;
+        public TodoService(TodoContext dbTodo,
+                            UsuarioService usuarioService)
         {
             _dbTodo = dbTodo;
+            _usuarioService = usuarioService;
         }
 
-
-        internal async Task<bool> CriaTarefa(List<DtoTodo> dtoLista)
+        public async Task<string> CriaTarefa(DtoTodo dtoLista, string email)
         {
-            var todos = dtoLista.Select(dto => new TodoLista
-            {
-                titulo = dto.titulo,
-                dt_criacao = dto.dt_criacao,
-                desc = dto.desc,
-                dt_conclusao = null
-            }).ToList();
+            var id = _usuarioService.BuscaDadosUsuarioEmail(email).Result.id;
 
+            var todos = new TodoLista
+            {
+                titulo = dtoLista.titulo,
+                dt_criacao = dtoLista.dt_criacao,
+                desc = dtoLista.desc,
+                dt_conclusao = null,
+                idUsuario = id
+            };
 
             await _dbTodo.todo.AddRangeAsync(todos);
             await _dbTodo.SaveChangesAsync();
 
-            dtoLista.Clear();
-            todos.Clear();
-
-            return true;
+            return "Criado com sucesso!";
         }
 
-        internal async Task<List<TodoView>> RetornaTodos()
+        public async Task<List<TodoView>> RetornaTodos(string email)
         {
-            var todoModel = await _dbTodo.todo.ToListAsync();
+            var user = _usuarioService.BuscaDadosUsuarioEmail(email).Result.id;
+
+            var todoModel = await _dbTodo.todo
+                                         .Where(x => x.idUsuario == user)
+                                         .ToListAsync();
 
             return todoModel.Select(dto => new TodoView
             {
@@ -51,48 +57,58 @@ namespace Todo.Services
             }).ToList();
         }
 
-        internal async Task<TodoView> RetornaTodo(int idItem)
+        public async Task<TodoView> RetornaTodo(int idItem, string email)
         {
+            var usuario = _usuarioService.BuscaDadosUsuarioEmail(email).Result.id;
+
             var res = await _dbTodo.todo
+                                   .Where(x => x.idUsuario == usuario && x.id == idItem)
                                    .Select(d => new TodoView
                                    {
+                                       id = usuario,
                                        desc = d.desc,
                                        dt_conclusao = d.dt_conclusao,
                                        dt_criacao = d.dt_criacao,
-                                       id = d.id,
                                        titulo = d.titulo
                                    })
-                                   .FirstOrDefaultAsync(x => x.id == idItem);
-
-            if (res == null)
-                res = new TodoView();
+                                   .FirstOrDefaultAsync();
 
             return res;
         }
 
-        internal async Task AlteraTodo(int id, DtoTodo body)
+        public async Task<string> AlteraTodo(int id, DtoTodo body, string email)
         {
+            var usuario = _usuarioService.BuscaDadosUsuarioEmail(email).Result.id;
+
             _dbTodo.todo.Update(new TodoLista
             {
                 id = id,
                 desc = body.desc,
                 dt_conclusao = body.dt_conclusao,
                 dt_criacao = body.dt_criacao,
-                titulo = body.titulo
+                titulo = body.titulo,
+                idUsuario = usuario
             });
 
             await _dbTodo.SaveChangesAsync();
+
+            return "Todo atualizada";
         }
 
-        internal async Task DeletaTodo(int id)
+        public async Task<string> DeletaTodo(int id, string email)
         {
-            using (var todo = _dbTodo.todo.FirstOrDefaultAsync(x => x.id == id))
+            var usuario = _usuarioService.BuscaDadosUsuarioEmail(email).Result.id;
+
+            using (var todo = _dbTodo.todo.Where(x => x.idUsuario == usuario && x.id == id)
+                                          .FirstOrDefaultAsync())
             {
                 if (todo.Result == null)
                     throw new Exception("Usuário não existente");
 
                 _dbTodo.todo.Remove(todo.Result);
                 await _dbTodo.SaveChangesAsync();
+
+                return "Usuário deletado";
             }
         }
     }

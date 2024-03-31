@@ -26,7 +26,16 @@ namespace Todo.Db
             modelBuilder.Entity<Usuario>(entity =>
             {
                 entity.HasKey(e => e.id);
+
+                entity.HasIndex(e => e.email)
+                      .IsUnique();
             });
+
+            modelBuilder.Entity<TodoLista>()
+                .HasOne(t => t.usuario)
+                .WithMany(u => u.todoListas)
+                .HasForeignKey(t => t.idUsuario);
+
 
             base.OnModelCreating(modelBuilder);
         }

@@ -6,5 +6,6 @@ namespace Todo.Models
         public string name { get; set; } = "";
         public string email { get; set; } = "";
         public string senha { get; set; } = "";
+        public ICollection<TodoLista>? todoListas { get; set; }
     }
 }

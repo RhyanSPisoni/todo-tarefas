@@ -21,7 +21,7 @@ namespace todo.Controllers
         [Authorize]
         public async Task<List<TodoView>> RetornaTodos()
         {
-            return await _todoService.RetornaTodos();
+            return await _todoService.RetornaTodos(User.Identity.Name);
         }
 
         [HttpGet]
@@ -29,61 +29,56 @@ namespace todo.Controllers
         [Authorize]
         public async Task<TodoView> RetornaTodo(int id)
         {
-            return await _todoService.RetornaTodo(id);
+            return await _todoService.RetornaTodo(id, User.Identity.Name);
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<bool> CriaTarefasUsuario(
-                   [FromBody] List<DtoTodo> todoLista)
+        public async Task<string> CriaTarefasUsuario([FromBody] DtoTodo todoLista)
         {
             try
             {
-                await _todoService.CriaTarefa(todoLista);
-
-                return true;
+                return await _todoService.CriaTarefa(todoLista, User.Identity.Name);
             }
             catch
             {
                 ExceptionService.MensagemErro();
             }
 
-            return false;
+            return "";
         }
         [HttpPut]
         [Route("{id}")]
         [Authorize]
-        public async Task<bool> AlteraTodo(int id, [FromBody] DtoTodo body)
+        public async Task<string> AlteraTodo(int id, [FromBody] DtoTodo body)
         {
             try
             {
-                await _todoService.AlteraTodo(id, body);
-                return true;
+                return await _todoService.AlteraTodo(id, body, User.Identity.Name);
             }
             catch
             {
                 ExceptionService.MensagemErro();
             }
 
-            return true;
+            return "";
         }
 
         [HttpDelete]
         [Route("{id}")]
         [Authorize]
-        public async Task<bool> RemoveTodo(int id)
+        public async Task<string> RemoveTodo(int id)
         {
             try
             {
-                await _todoService.DeletaTodo(id);
-                return true;
+                return await _todoService.DeletaTodo(id, User.Identity.Name);
             }
             catch
             {
                 ExceptionService.MensagemErro();
             }
 
-            return true;
+            return "";
         }
 
     }

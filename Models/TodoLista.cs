@@ -7,5 +7,7 @@ namespace Todo.Models
         public string desc { get; set; } = "";
         public DateTime dt_criacao { get; set; }
         public DateTime? dt_conclusao { get; set; }
+        public int idUsuario { get; set; }
+        public Usuario usuario { get; set; }
     }
 }
