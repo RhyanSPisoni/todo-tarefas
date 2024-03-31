@@ -1,8 +1,10 @@
-namespace Todo.Models
+#nullable disable
+
+namespace Todo.DTOs
 {
-    public class TodoLista
+
+    public class DtoTodo
     {
-        public int id { get; set; }
         public string titulo { get; set; } = "";
         public string desc { get; set; } = "";
         public DateTime dt_criacao { get; set; }

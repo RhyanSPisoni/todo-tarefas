@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 using Todo.Models;
 
 namespace Todo.Db
@@ -14,5 +13,22 @@ namespace Todo.Db
         }
 
         public DbSet<TodoLista> todo { get; set; }
+        public DbSet<Usuario> Usuario { get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TodoLista>(entity =>
+            {
+                entity.HasKey(e => e.id);
+            });
+
+            modelBuilder.Entity<Usuario>(entity =>
+            {
+                entity.HasKey(e => e.id);
+            });
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

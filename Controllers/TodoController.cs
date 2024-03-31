@@ -1,61 +1,89 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Todo.DTOs;
+using Todo.Models;
 using Todo.Services;
 using Todo.Views;
 
 namespace todo.Controllers
 {
+    [ApiController]
+    [Route("api/todos")]
     public class TodoController : ControllerBase
     {
         private readonly TodoService _todoService;
-
         public TodoController(TodoService todoService)
         {
             _todoService = todoService;
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<List<TodoView>> RetornaTodos()
+        {
+            return await _todoService.RetornaTodos();
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        [Authorize]
+        public async Task<TodoView> RetornaTodo(int id)
+        {
+            return await _todoService.RetornaTodo(id);
+        }
+
         [HttpPost]
-        [Route("/api/todos")]
-        public TodoView CriaTarefasUsuario(TodoService todoService)
+        [Authorize]
+        public async Task<bool> CriaTarefasUsuario(
+                   [FromBody] List<DtoTodo> todoLista)
         {
             try
             {
-                _todoService.CriaTarefa();
-                return new TodoView();
+                await _todoService.CriaTarefa(todoLista);
+
+                return true;
             }
             catch
             {
                 ExceptionService.MensagemErro();
             }
 
-            return new TodoView();
+            return false;
         }
-
-        [HttpGet]
-        [Route("/api/todos")]
-        public string RetornaTodos()
-        {
-            return "";
-        }
-
-        [HttpGet]
-        [Route("/api/todos/{id}")]
-        public string RetornaTodo()
-        {
-            return "";
-        }
-
         [HttpPut]
-        [Route("/api/todos/{id}")]
-        public string AlteraTodo()
+        [Route("{id}")]
+        [Authorize]
+        public async Task<bool> AlteraTodo(int id, [FromBody] DtoTodo body)
         {
-            return "";
+            try
+            {
+                await _todoService.AlteraTodo(id, body);
+                return true;
+            }
+            catch
+            {
+                ExceptionService.MensagemErro();
+            }
+
+            return true;
         }
 
         [HttpDelete]
-        [Route("/api/todos/{id}")]
-        public string RemoveTodo()
+        [Route("{id}")]
+        [Authorize]
+        public async Task<bool> RemoveTodo(int id)
         {
-            return "";
+            try
+            {
+                await _todoService.DeletaTodo(id);
+                return true;
+            }
+            catch
+            {
+                ExceptionService.MensagemErro();
+            }
+
+            return true;
         }
 
     }
