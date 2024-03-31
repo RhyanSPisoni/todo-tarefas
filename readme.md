@@ -1,7 +1,12 @@
 Documentação API
 
-Dotnet 8.0.3
-Banco de dados em memória
+==========================
+-API
+-Dotnet 8.0.3
+-Banco de dados em memória
+-Cors
+-JWT
+==========================
 
 Rotas:
 
@@ -78,7 +83,7 @@ Rota: /api/usuario/dados
 ---
 
 Request: POST
-Restrito: Sim
+Restrito: Não
 Info: Cria um novo Usuário
 Rota: /api/usuario/novo/usuario
 Body:
@@ -92,7 +97,7 @@ Body:
 ---
 
 Request: POST
-Restrito: Sim
+Restrito: Não
 Info: Faz login na API e retorna um Token
 Rota: /api/usuario/verificalogin
 Body:
